@@ -1,0 +1,11 @@
+Index	MDT Instruction
+1		INCR &X &Y &Z		
+2		MOVER &Z &X		
+3		ADD &Z &Y		
+4		MOVEM &Z &X		
+5		MEND		
+6		DECR &A &B &C		
+7		MOVER &C &A		
+8		SUB &C &B		
+9		MOVEM &C &A		
+10		MEND		

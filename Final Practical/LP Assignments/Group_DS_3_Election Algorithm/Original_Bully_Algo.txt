@@ -1,0 +1,179 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+
+class Process implements Comparable<Process>{
+    private int mId;
+    private int mTimeout;
+    private int mPriority;
+    Process(int id, int timeout, int prior){
+        mId = id;
+        mTimeout = timeout;
+        mPriority = prior;
+    }
+
+    public int getID(){
+        return mId;
+    }
+
+    public int getTimeout(){
+        return mTimeout;
+    }
+
+    public int getPriority(){
+        return mPriority;
+    }
+
+    public void setTimeout(int tm){
+        mTimeout = tm;
+    }
+
+    public void incrementTimeout(int t){
+        mTimeout += t;
+    }
+
+    @Override public String toString(){
+        return ("ID: "+ Integer.toString(mId)+ "\tPriority: "+ Integer.toString(mPriority));//+ "\tTimeout: "+ Integer.toString(mTimeout);
+    }
+
+    @Override public int compareTo(Process p){
+        return -1*(this.mPriority - ((Process)p).getPriority());
+    }
+}
+
+class bully_algorithm{
+    public static void main(String[] args) throws InterruptedException{
+
+        ArrayList<Process> processes = new ArrayList<>();
+        Scanner sc=new Scanner(System.in);
+        Process currentCoo, p;
+
+        System.out.print("Enter a number of processes: ");
+        int n = sc.nextInt();
+        System.out.println(String.format("Enter a %d priorities: ",n));
+        for(int q = 0; q < n; q++)
+            processes.add(new Process(q, (int) (Math.random()*(11)), sc.nextInt()));
+
+        for(int i2 = 0; i2<processes.size(); i2++)
+            System.out.println(processes.get(i2));
+
+        Collections.sort(processes);
+        currentCoo = processes.get(0);
+        p = processes.get((int)(Math.random()*(processes.size()-1)+1));
+
+
+        boolean cooChanged = false;
+
+        while(processes.size() > 1){
+            if(cooChanged || p == currentCoo){
+                p = processes.get((int)(Math.random()*processes.size()));
+                cooChanged = false;
+            }
+
+            System.out.print("Current Process (ID): ");
+            System.out.println(p.getID());
+            System.out.print("Current Co-ordinator (ID): ");
+            System.out.println(currentCoo.getID());
+            System.out.println(String.format("Process %d sent message to Co-ordinator %d",p.getID(), currentCoo.getID()));
+
+
+            if(p.getTimeout() >= currentCoo.getTimeout()){
+                System.out.println(String.format("Current Co-ordinator with ID %d is responding",currentCoo.getID()));
+            }
+            else{
+                System.out.println(String.format("Co-ordinator %d Didn't respond.",currentCoo.getID()));
+                System.out.println("Election Started!");
+                if(p != currentCoo){
+                    processes.remove(processes.indexOf(currentCoo));
+                    cooChanged = true;
+                }
+
+
+                int processIndex = processes.indexOf(p);
+                updatetimeouts(processes);
+                p = processes.get(processIndex);
+
+                int mintime = p.getTimeout();
+                boolean flag = false;
+
+                System.out.print("Sending message to Priorities higher than ");
+                System.out.println(p.getPriority());
+
+                for(int z = 0; z < processIndex; z++){
+                    if(processes.get(z).getTimeout() < mintime){
+                        currentCoo = processes.get(z);
+                        mintime = currentCoo.getTimeout();
+                        flag = true;
+                    }
+                }
+
+                if(!flag){
+                    currentCoo = p;
+                    System.out.println("No one responded.");
+                }
+                else{
+                    System.out.print("New Co-ordinator is (ID): ");
+                    System.out.println(currentCoo.getID());
+                    System.out.println("message conveyed to lower Processes.");
+                    System.out.println("Restarting Loop... \n\n");
+                    updatetimeouts(processes);
+
+                    continue;
+                }
+
+                int minIndex = processes.indexOf(currentCoo);
+                updatetimeouts(processes);
+                currentCoo = processes.get(minIndex);
+
+                System.out.print("Sending message to Priorities Lower than ");
+                System.out.println(currentCoo.getPriority());
+
+                int timeout = currentCoo.getTimeout();
+                ArrayList<Process> responses = new ArrayList<>();
+                ArrayList<Integer> responseIndices = new ArrayList<>();
+                for(int x = minIndex+1; x < processes.size(); x++){
+                    if(processes.get(x).getTimeout() < timeout){
+                        responses.add(processes.get(x));
+                        responseIndices.add(x);
+                    }
+                }
+                updatetimeouts(processes);
+                currentCoo = processes.get(minIndex);
+
+                for(int h = 0; h < responseIndices.size(); h++){
+                    responses.get(h).incrementTimeout(processes.get(responseIndices.get(h)).getTimeout());
+                }
+
+                int maxtimeout = 2 * currentCoo.getTimeout();
+
+                flag = false;
+                for(int v = 0; v < responses.size(); v++){
+                    System.out.println(String.format("Process %d responded waiting for another reply",responses.get(v).getID()));
+                    if(responses.get(v).getTimeout() < maxtimeout){
+                        currentCoo = responses.get(v);
+                        maxtimeout = responses.get(v).getTimeout();
+                        flag = true;
+                    }
+                }
+                if(flag){
+                    System.out.print("new Co-ordinator is (ID): ");
+                    System.out.println(currentCoo.getID());
+                }
+                else{
+                    System.out.println("no one Responded!");
+                }
+            }
+            System.out.println("Restarting Loop... \n\n");
+            updatetimeouts(processes);
+        }
+
+
+    }
+
+
+    static void updatetimeouts(ArrayList<Process> p){
+        for(int i = 0; i < p.size(); i++){
+            p.get(i).setTimeout((int) (Math.random()*(11)));        }
+
+    }
+}

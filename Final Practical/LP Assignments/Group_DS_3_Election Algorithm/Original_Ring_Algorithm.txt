@@ -1,0 +1,206 @@
+package com.muthadevs;
+
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        int temp, i, j;
+
+        Process[] proc = new Process[10];
+
+        //object initialisation
+        for (i = 0; i < proc.length; i++)
+            proc[i] = new Process();
+
+        //scanner used for getting input from console
+        Scanner in = new Scanner(System.in);
+        System.out.print("Enter the number of process : ");
+        int numOfProcesses = in.nextInt();
+        System.out.println();
+
+        // getting input from users
+        for (i = 0; i < numOfProcesses; i++) {
+            proc[i].index = i;
+            System.out.print("Enter the id of process "+(i)+" : ");
+            proc[i].id = in.nextInt();
+            System.out.println("");
+            proc[i].state = "active";
+        }
+
+        // sorting the processes on the basis of id
+        for (i = 0; i < numOfProcesses - 1; i++) {
+            for (j = 0; j < numOfProcesses - 1; j++) {
+                if (proc[j].id > proc[j + 1].id) {
+                    temp = proc[j].id;
+                    proc[j].id = proc[j + 1].id;
+                    proc[j + 1].id = temp;
+                }
+            }
+        }
+
+        for (i = 0; i < numOfProcesses; i++) {
+            System.out.print("["+i+"]"+proc[i].id+" ");
+        }
+
+        int init,ch,temp1,temp2,max = -1;
+        int[] active_list = new int[10];
+
+        System.out.println("\nProcess " + proc[numOfProcesses - 1].id + " selected as co-ordinator");
+
+        max=proc[numOfProcesses-1].id;
+
+        System.out.print
+                                                         ("|----|----------------------------|\n" +
+                                                          "| No |           MENU             |" +
+                                                        "\n|----|----------------------------|"+
+                                                        "\n| 1] | Crash Process              |" +
+                                                        "\n| 2] | Conduct Election           |" +
+                                                        "\n| 3] | Print co-ordinator         |" +
+                                                        "\n| 4] | Send MSG to co-ordinator   |" +
+                                                        "\n| 5] | Terminate from here        |" +
+                                                        "\n|----|----------------------------|" +
+                                                        "\nEnter Your Choice : ");
+                    ch = in.nextInt();
+
+        while (ch!=5) {
+            for(int k : active_list){
+                active_list[k] = 0;
+            }
+            System.out.print
+                                                 ("|----|----------------------------|\n" +
+                                                  "| No |           MENU             |" +
+                                                "\n|----|----------------------------|"+
+                                                "\n| 1] | Crash Process              |" +
+                                                "\n| 2] | Conduct Election           |" +
+                                                "\n| 3] | Print co-ordinator         |" +
+                                                "\n| 4] | Send MSG to co-ordinator   |" +
+                                                "\n| 5] | Terminate from here        |" +
+                                                "\n|----|----------------------------|" +
+                                                "\nEnter Your Choice : ");
+            ch = in.nextInt();
+
+            switch (ch) {
+                case 1:
+                    System.out.print("Enter Process Number to Crash : ");
+                    int p=in.nextInt();
+                    System.out.println();
+                    if(p==proc[numOfProcesses-1].id)
+                    {
+                        proc[numOfProcesses - 1].state = "inactive";
+                        System.out.println("Process "+proc[numOfProcesses - 1].id+" is crashed\nPerform Election to choose new coordinator !");
+                    }
+                    else
+                    {
+                        proc[p-1].state="inactive";
+                        System.out.println("Process "+p+" is crashed");
+                    }
+                    max = -1;
+                    break;
+
+                case 2:
+                    System.out.print("\nEnter the Process number who initialised election : ");
+                    init = in.nextInt();
+                    temp2 = init;
+                    temp1 = init + 1;
+
+                    i = 0;
+                    max = -1;
+
+                    while (temp2 != temp1) {
+                        if ("active".equals(proc[temp1].state)) {
+
+                            System.out.print("\nProcess " + proc[init].id + " send message to " + proc[temp1].id);
+                            active_list[i] = proc[init].id;
+                            System.out.println("");
+                            for(int t=0;t< active_list.length;t++){
+                                System.out.print((active_list[t]!=0)?active_list[t]+" ":"");
+                            }
+                            init = temp1;
+                            i++;
+
+                        }
+                        if (temp1 == numOfProcesses) {
+                            temp1 = 0;
+                        } else {
+                            temp1++;
+                        }
+                    }
+
+                    System.out.println("\nProcess " + proc[init].id + " send message to " + proc[temp1].id);
+                    active_list[i] = proc[init].id;
+                    for(int t=0;t< active_list.length;t++){
+                        System.out.print((active_list[t]!=0)?active_list[t]+" ":"");
+                    }
+                    i++;
+
+                    // finding maximum for co-ordinator selection
+                    for (j = 0; j < i; j++) {
+                        if (max < active_list[j]) {
+                            max = active_list[j];
+                        }
+                    }
+
+                    //Co-ordinator is found then printing on console
+                    System.out.println("\nProcess " + max + " selected as coordinator");
+
+                    for (i = 0; i < numOfProcesses; i++) {
+
+                        if (proc[i].id == max) {
+                            proc[i].state = "inactive";
+                        }
+                    }
+                    break;
+                case 3:
+                    if (max != -1) {
+                        System.out.print("Current Co-ordinator : Process with id " +max+"\n");
+                    } else {
+                        System.out.print("No Co-ordinator present\n");
+                    }
+                    break;
+                case 4:
+                    if(max != -1){
+                        System.out.print("Enter the process id which will send msg to co-ordinator : ");
+                        int p_id = in.nextInt();
+                        boolean flag=false,flag2=false;
+                        for(int k=0;k<proc.length;k++){
+                            if(p_id == proc[k].id){
+                                flag=true;
+                                if(proc[k].state.equalsIgnoreCase("active")){
+                                    flag2=true;
+                                }
+                            }
+                        }
+                        if (!flag){
+                            System.out.println("No Such process found !");
+                            break;
+                        }
+                        if(!flag2){
+                            System.out.println("The process is INACTIVE !");
+                            break;
+                        }
+                        System.out.print("Response from co-ordinator (i.e process id "+max+") received\n");
+                    }else {
+                        System.out.println("No co-ordinator present, please initiate the election");
+                    }
+                    break;
+                case 5:
+                    System.out.println("Program terminated ...");
+                    return ;
+                default:
+                    System.out.println("\nInvalid response \n");
+                    break;
+            }
+
+        }
+    }
+
+}
+class Process {
+
+    public int index;   // to store the index of process
+    public int id;      // to store id of process
+    String state;       // indicates whether process is in active or inactive state
+
+}

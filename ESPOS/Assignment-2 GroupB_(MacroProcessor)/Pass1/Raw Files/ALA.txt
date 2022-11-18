@@ -1,0 +1,10 @@
+INCR N1 N2 AREG
+Index	Formal Parameters	Actual Parameters
+1					&X					N1
+2					&Y					N2
+3					&Z					AREG
+DECR N1 N2 BREG
+Index	Formal Parameters	Actual Parameters
+1					&A					N1
+2					&B					N2
+3					&C					BREG
